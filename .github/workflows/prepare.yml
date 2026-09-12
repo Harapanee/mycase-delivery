@@ -1,0 +1,44 @@
+name: コンテナ事前作成
+
+# public リポジトリのため pull_request トリガーは付けない。
+# フォークからの PR が secrets に触れられてしまうのを防ぐため。
+on:
+  schedule:
+    - cron: '0 15 * * *'      # 00:00 JST(UTC 15:00)
+                              # ★このジョブだけは前倒ししない。日付が前日に変わるため
+    # 0時の cron は世界中で最も混み合い、稀に丸ごと落ちる(発火自体が来ない)。
+    # その日の最初の公開(06:00)の10分前に保険をもう1発。後追いなので日付は変わらない。
+    # prepare.py は prepared/published を読み飛ばすため、0時が正常なら空振りで終わる。
+    - cron: '50 20 * * *'     # 05:50 JST(0時が発火しなかった場合の保険。UTC では前日 20:50)
+  workflow_dispatch:
+
+concurrency:
+  group: ig-state
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: コンテナを事前作成する
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+        run: python publish/prepare.py
+      - name: state.json を保存する
+        if: always()
+        run: |
+          if [[ -n "$(git status --porcelain state.json)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add state.json
+            git commit -m "chore: コンテナ事前作成の結果を記録"
+            git push
+          fi
