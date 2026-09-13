@@ -44,6 +44,13 @@ cron を1枠4発置いてあるのは GitHub の定時実行が遅延・欠落�
 
 トークンは60日で失効する。healthcheck が毎朝残日数を出し、14日を切ると警告する。更新手順は `../ゆうとキャリア/HANDOFF.md` 冒頭(同じシステムユーザー)。
 
+## 発火の仕組み(2026-09-13 変更)
+GitHub の `schedule` は公開直後のリポジトリで最大5時間遅れ、9/13 の 12:00/18:00 枠が窓の外で全スキップされた。
+そのため発火は Claude のクラウド定期実行 `trig_01Q1Rfj3Z72yb8KkPS7VfsGD`(毎日 05:55/11:55/17:55 JST)が担う。
+定期実行は `trigger/fire.txt` に1行追記して push するだけで、publish.yml は `push: paths: trigger/**` で即時発火する(試運転: 起動→push 19秒→発火 12秒)。
+`schedule` の4発は保険として残してある。投稿の判断(時刻窓・公開済みスキップ)は従来どおり publish.py が行うので、二重投稿にはならない。
+定期実行の管理: https://claude.ai/code/routines/trig_01Q1Rfj3Z72yb8KkPS7VfsGD
+
 ## 素材の更新手順
 ```bash
 python3 tools/stage_assets.py 2026-09-13     # 制作側の31本を投稿順にリネーム+サムネイル
