@@ -23,6 +23,13 @@ on:
     - cron: '48 8 * * *'      # 17:48 JST │ 18:00枠
     - cron: '56 8 * * *'      # 17:56 JST │
     - cron: '3 9 * * *'       # 18:03 JST ┘
+  # ★2026-09-13: GitHub の schedule は公開直後のリポジトリで最大5時間遅れ、12:00/18:00 枠が
+  #   窓(+3時間)の外で全スキップされた。発火自体を GitHub に任せず、Claude のクラウド定期実行が
+  #   毎日 05:55/11:55/17:55 JST に trigger/fire.txt へ1行追記して push する。push は即時発火する。
+  #   state.json の commit は paths に含まれないのでループしない。schedule の4発は保険として残す。
+  push:
+    branches: [master]
+    paths: ['trigger/**']
   workflow_dispatch:
     inputs:
       key:
@@ -68,7 +75,7 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add state.json
             git commit -m "chore: 投稿結果を記録"
+            git pull --rebase origin ${{ github.event.repository.default_branch }}
             git push
           fi
 
-# registered 2026-09-12
