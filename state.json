@@ -33,6 +33,8 @@
  "006_20260914_1800": {
   "container_created_at": "2026-09-14T03:06:27.668546+09:00",
   "container_id": "17958026091210539",
-  "status": "prepared"
+  "media_id": "17882098371511065",
+  "published_at": "2026-09-14T17:48:39.907196+09:00",
+  "status": "published"
  }
 }
