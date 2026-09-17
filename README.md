@@ -47,19 +47,20 @@ cron を1枠4発置いてあるのは GitHub の定時実行が遅延・欠落�
 
 ## 発火の仕組み(2026-09-13 変更)
 GitHub の `schedule` は公開直後のリポジトリで最大5時間遅れ、9/13 の 12:00/18:00 枠が窓の外で全スキップされた。
-そのため発火は Claude のクラウド定期実行 `trig_01Q1Rfj3Z72yb8KkPS7VfsGD`(毎日 05:55/11:55/17:55 JST)が担う。
+そのため発火は Claude のクラウド定期実行 `trig_01Q1Rfj3Z72yb8KkPS7VfsGD`(毎日 05:55/11:55/17:55 JST。2026-09-17 に英語用の 07:55/21:55/00:55 を追加、cron `55 20,2,8,22,12,15 * * *` UTC)が担う。
 定期実行は `trigger/fire.txt` に1行追記して push するだけで、publish.yml は `push: paths: trigger/**` で即時発火する(試運転: 起動→push 19秒→発火 12秒)。
 `schedule` の4発は保険として残してある。投稿の判断(時刻窓・公開済みスキップ)は従来どおり publish.py が行うので、二重投稿にはならない。
 定期実行の管理: https://claude.ai/code/routines/trig_01Q1Rfj3Z72yb8KkPS7VfsGD
 
 ## 英語アカウント @mycase_en(2026-09-17 追加)
-同じリポジトリ・同じ発火・同じ枠(06/12/18 JST)で、ファイルだけ分離している。
+同じリポジトリ・同じ定期実行で、枠とファイルを分離している。**英語の枠は米国向けに 08:00 / 22:00 / 01:00 JST**(= 前日 19:00 / 09:00 / 12:00 ET。11月の米国冬時間で1時間ずれるので見直す)。定期実行は 05:55/11:55/17:55(JA)+07:55/21:55/00:55(EN)の6回発火し、各ジョブは自分の枠に近い予定だけ拾う(他方の発火時刻では窓外か公開済みでスキップ)。
 
 | | 日本語 @mycasestore_net | 英語 @mycase_en |
 |---|---|---|
 | 環境変数 | `IG_ACCOUNT` なし | `IG_ACCOUNT=en` |
 | 投稿予定 / 記録 / 本文 | `schedule.json` / `state.json` / `captions.json` | `accounts/en/schedule.json` / `accounts/en/state.json` / `accounts/en/captions.json` |
 | Release タグ | `reels-v1` | `reels-en-v1` |
+| 枠(JST) | 06:00 / 12:00 / 18:00 | 08:00 / 22:00 / 01:00 |
 | ジョブ | `publish` / `prepare` / `healthcheck` | `publish-en` / `prepare-en` / `healthcheck-en`(日本語の後に直列) |
 | 手動公開 | `publish.yml -f key=NNN_…` | `publish.yml -f key_en=NNN_…` |
 

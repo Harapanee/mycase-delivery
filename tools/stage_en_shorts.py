@@ -5,6 +5,7 @@
 制作側の構造(picks.json)を持たない素材向け。stage_assets.py の en 版。
   ・ファイル名の数字順(1ttp, ttp2, … ttp12)に投稿順を振る
   ・HEVC 4K → H.264 1080x1920 / AAC に変換(Instagram API は 1080 幅の H.264 が推奨)
+  ・投稿枠は 08:00 / 22:00 / 翌 01:00 JST(米国の 19/09/12時 ET)
   ・サムネイルは長さの 75% 地点(ケースに絵が載っている終盤)
   ・manifest.json を書く(build_schedule.py --account en の材料)
 usage: python3 tools/stage_en_shorts.py <動画フォルダ> <開始日 YYYY-MM-DD>
@@ -18,7 +19,9 @@ import sys
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "release-assets", "en")
 TPL = ["classic", "specs", "qa", "day", "loop", "split", "myth"]
-SLOTS = [6, 12, 18]
+# 米国向けの枠(JST): 08:00 = 前日 19:00 ET / 22:00 = 09:00 ET / 翌 01:00 = 12:00 ET。
+# 開始日の 0 時からの時間数で表す(25 = 翌日 01:00)。11月の米国冬時間で1時間ずれる。
+SLOT_HOURS = [8, 22, 25]
 
 
 def duration(path):
@@ -36,7 +39,7 @@ def main():
     for i, f in enumerate(files):
         n = int(re.search(r"\d+", f).group())
         t = TPL[(n - 1) % 7]
-        at = start.replace(hour=SLOTS[i % 3]) + datetime.timedelta(days=i // 3)
+        at = start + datetime.timedelta(days=i // 3, hours=SLOT_HOURS[i % 3])
         key = f"{i + 1:03d}_{at:%Y%m%d_%H%M}"
         src = os.path.join(src_dir, f)
         dst = os.path.join(OUT, key + ".mp4")

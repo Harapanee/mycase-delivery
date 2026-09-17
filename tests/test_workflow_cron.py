@@ -26,23 +26,30 @@ def _jst(cron):
     return u.astimezone(JST).time()
 
 
+# 日本語 @mycasestore_net = 06/12/18、英語 @mycase_en = 08/22/01(米国向け)
+SLOTS = [datetime.time(6, 0), datetime.time(12, 0), datetime.time(18, 0),
+         datetime.time(8, 0), datetime.time(22, 0), datetime.time(1, 0)]
+
+
+def _near(t, slot):
+    d = abs(datetime.datetime.combine(datetime.date(2026, 1, 1), t)
+            - datetime.datetime.combine(datetime.date(2026, 1, 1), slot))
+    return min(d, datetime.timedelta(days=1) - d)   # 日付境界(01:00 枠と 00:41)をまたぐ
+
+
 def test_公開cronは枠ごとに4発ある():
     got = sorted(_jst(c) for c in _crons("publish.yml"))
-    assert len(got) == 12, f"1枠4発 × 3枠 = 12発のはず: {got}"
-    for slot in (datetime.time(6, 0), datetime.time(12, 0), datetime.time(18, 0)):
-        near = [t for t in got if abs(
-            datetime.datetime.combine(datetime.date(2026, 1, 1), t)
-            - datetime.datetime.combine(datetime.date(2026, 1, 1), slot)) <= WINDOW]
+    assert len(got) == 24, f"1枠4発 × 6枠(JA 3 + EN 3) = 24発のはず: {got}"
+    for slot in SLOTS:
+        near = [t for t in got if _near(t, slot) <= datetime.timedelta(minutes=25)]
         assert len(near) == 4, f"{slot} 枠の発火が {len(near)} 発しかない"
 
 
 def test_公開cronは全て予定時刻の判定窓内に入る():
     """窓の外に置くと publish.py がスキップして永久に投稿されない。"""
-    slots = [datetime.time(6, 0), datetime.time(12, 0), datetime.time(18, 0)]
     for c in _crons("publish.yml"):
         t = _jst(c)
-        d = min(abs(datetime.datetime.combine(datetime.date(2026, 1, 1), t)
-                    - datetime.datetime.combine(datetime.date(2026, 1, 1), s)) for s in slots)
+        d = min(_near(t, s) for s in SLOTS)
         assert d <= WINDOW, f"{c} ({t}) はどの枠からも判定窓の外"
 
 
