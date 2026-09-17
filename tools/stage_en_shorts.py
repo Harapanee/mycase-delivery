@@ -8,7 +8,8 @@
   ・投稿枠は 08:00 / 22:00 / 翌 01:00 JST(米国の 19/09/12時 ET)
   ・サムネイルは長さの 75% 地点(ケースに絵が載っている終盤)
   ・manifest.json を書く(build_schedule.py --account en の材料)
-usage: python3 tools/stage_en_shorts.py <動画フォルダ> <開始日 YYYY-MM-DD>
+usage: python3 tools/stage_en_shorts.py <動画フォルダ> <開始日 YYYY-MM-DD> [--skip N]
+  --skip N: 開始日の最初の N 枠を飛ばす(例 --skip 1 で開始日の 22:00 から)
 """
 import datetime
 import json
@@ -32,6 +33,7 @@ def duration(path):
 
 def main():
     src_dir, start = sys.argv[1], datetime.datetime.strptime(sys.argv[2], "%Y-%m-%d")
+    skip = int(sys.argv[sys.argv.index("--skip") + 1]) if "--skip" in sys.argv else 0
     os.makedirs(OUT, exist_ok=True)
     files = [f for f in os.listdir(src_dir) if f.lower().endswith(".mp4")]
     files.sort(key=lambda f: int(re.search(r"\d+", f).group()))
@@ -39,7 +41,8 @@ def main():
     for i, f in enumerate(files):
         n = int(re.search(r"\d+", f).group())
         t = TPL[(n - 1) % 7]
-        at = start + datetime.timedelta(days=i // 3, hours=SLOT_HOURS[i % 3])
+        j = i + skip
+        at = start + datetime.timedelta(days=j // 3, hours=SLOT_HOURS[j % 3])
         key = f"{i + 1:03d}_{at:%Y%m%d_%H%M}"
         src = os.path.join(src_dir, f)
         dst = os.path.join(OUT, key + ".mp4")

@@ -74,7 +74,7 @@ python3 tools/build_schedule.py              # captions.json と合わせて sch
 gh release create reels-v1 release-assets/*.mp4 release-assets/*.jpg --title "reels v1" --notes "31本"
 python3 -m pytest tests -q
 ```
-英語版(ユーザーが用意した縦動画フォルダから。2026-09-18〜 の 12 本は `~/Desktop/mycase_en_shorts/` 由来、HEVC 4K → H.264 1080x1920 に変換):
+英語版(ユーザーが用意した縦動画フォルダから。2026-09-17 22:00〜 の 12 本は `~/Desktop/mycase_en_shorts/` 由来、HEVC 4K → H.264 1080x1920 に変換):
 ```bash
 python3 tools/stage_en_shorts.py <動画フォルダ> <開始日>   # 数字順に投稿順を振り、変換+サムネイル+manifest
 python3 tools/build_schedule.py --account en             # accounts/en/captions.json → accounts/en/schedule.json
