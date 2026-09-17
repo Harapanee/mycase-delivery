@@ -73,13 +73,14 @@ python3 tools/build_schedule.py              # captions.json と合わせて sch
 gh release create reels-v1 release-assets/*.mp4 release-assets/*.jpg --title "reels v1" --notes "31本"
 python3 -m pytest tests -q
 ```
-英語版(動画は英語テロップ・$79 で別途レンダリングしたもの):
+英語版(ユーザーが用意した縦動画フォルダから。2026-09-18〜 の 12 本は `~/Desktop/mycase_en_shorts/` 由来、HEVC 4K → H.264 1080x1920 に変換):
 ```bash
-python3 tools/stage_assets.py 2026-09-25 --account en --src <英語版の制作ディレクトリ>
-python3 tools/build_schedule.py --account en   # accounts/en/captions.json → accounts/en/schedule.json
-gh release create reels-en-v1 release-assets/en/*.mp4 release-assets/en/*.jpg --title "reels en v1" --notes "31本"
+python3 tools/stage_en_shorts.py <動画フォルダ> <開始日>   # 数字順に投稿順を振り、変換+サムネイル+manifest
+python3 tools/build_schedule.py --account en             # accounts/en/captions.json → accounts/en/schedule.json
+gh release create reels-en-v1 release-assets/en/*.mp4 release-assets/en/*.jpg --title "reels en v1" --notes "12本"
 python3 -m pytest tests -q
 ```
+追加分は次のタグ(`reels-en-v2`)と `--tag` で分け、schedule.json は末尾に足す。
 
 ## 本番投入の前に必ずやること
 1. Secrets を入れたら **疎通確認ワークフロー(healthcheck.yml)を手動実行**して `content_publishing_limit` が返るのを見る
