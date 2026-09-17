@@ -26,3 +26,17 @@ jobs:
         run: python publish/healthcheck.py
 
 # registered 2026-09-12
+
+  healthcheck-en:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: APIに疎通できるか確認する(@mycase_en、読み取りのみ)
+        env:
+          IG_ACCOUNT: en
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID_EN }}
+        run: python publish/healthcheck.py

@@ -40,7 +40,8 @@ cron を1枠4発置いてあるのは GitHub の定時実行が遅延・欠落�
 | 名前 | 中身 |
 |---|---|
 | `IG_ACCESS_TOKEN` | Meta ビジネスポートフォリオ `MyCase`(667986306034264)のシステムユーザー `bizbot` のトークン。`EAA...` で始まること |
-| `IG_USER_ID` | MyCase 公式 Instagram の IG ユーザーID(17841... の形式) |
+| `IG_USER_ID` | MyCase 公式 Instagram @mycasestore_net の IG ユーザーID(17841... の形式) |
+| `IG_USER_ID_EN` | 英語 @mycase_en の IG ユーザーID。**未設定の間は en ジョブがスキップして緑**(同じ bizbot トークンで投稿する。Business Suite で @mycase_en をポートフォリオに追加し bizbot に割り当てておくこと) |
 
 トークンは60日で失効する。healthcheck が毎朝残日数を出し、14日を切ると警告する。更新手順は `../ゆうとキャリア/HANDOFF.md` 冒頭(同じシステムユーザー)。
 
@@ -51,11 +52,32 @@ GitHub の `schedule` は公開直後のリポジトリで最大5時間遅れ、
 `schedule` の4発は保険として残してある。投稿の判断(時刻窓・公開済みスキップ)は従来どおり publish.py が行うので、二重投稿にはならない。
 定期実行の管理: https://claude.ai/code/routines/trig_01Q1Rfj3Z72yb8KkPS7VfsGD
 
+## 英語アカウント @mycase_en(2026-09-17 追加)
+同じリポジトリ・同じ発火・同じ枠(06/12/18 JST)で、ファイルだけ分離している。
+
+| | 日本語 @mycasestore_net | 英語 @mycase_en |
+|---|---|---|
+| 環境変数 | `IG_ACCOUNT` なし | `IG_ACCOUNT=en` |
+| 投稿予定 / 記録 / 本文 | `schedule.json` / `state.json` / `captions.json` | `accounts/en/schedule.json` / `accounts/en/state.json` / `accounts/en/captions.json` |
+| Release タグ | `reels-v1` | `reels-en-v1` |
+| ジョブ | `publish` / `prepare` / `healthcheck` | `publish-en` / `prepare-en` / `healthcheck-en`(日本語の後に直列) |
+| 手動公開 | `publish.yml -f key=NNN_…` | `publish.yml -f key_en=NNN_…` |
+
+`accounts/en/schedule.json` が無い、または `IG_USER_ID_EN` が空の間は en ジョブは何もせず正常終了する。
+パスの解決は `publish/account.py` が一元管理している(ここ以外にアカウント別の分岐を書かない)。
+
 ## 素材の更新手順
 ```bash
 python3 tools/stage_assets.py 2026-09-13     # 制作側の31本を投稿順にリネーム+サムネイル
 python3 tools/build_schedule.py              # captions.json と合わせて schedule.json を生成
 gh release create reels-v1 release-assets/*.mp4 release-assets/*.jpg --title "reels v1" --notes "31本"
+python3 -m pytest tests -q
+```
+英語版(動画は英語テロップ・$79 で別途レンダリングしたもの):
+```bash
+python3 tools/stage_assets.py 2026-09-25 --account en --src <英語版の制作ディレクトリ>
+python3 tools/build_schedule.py --account en   # accounts/en/captions.json → accounts/en/schedule.json
+gh release create reels-en-v1 release-assets/en/*.mp4 release-assets/en/*.jpg --title "reels en v1" --notes "31本"
 python3 -m pytest tests -q
 ```
 

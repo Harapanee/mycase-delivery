@@ -4,7 +4,9 @@
 
 video_url / cover_url は GitHub Releases の公開URL。
   https://github.com/<owner>/<repo>/releases/download/<tag>/<key>.mp4
-usage: python3 tools/build_schedule.py [--repo Harapanee/mycase-delivery] [--tag reels-v1]
+usage: python3 tools/build_schedule.py [--repo Harapanee/mycase-delivery] [--tag reels-v1] [--account en]
+  --account en なら release-assets/en/manifest.json + accounts/en/captions.json → accounts/en/schedule.json
+  (タグ既定 reels-en-v1)
 """
 import datetime
 import json
@@ -12,6 +14,8 @@ import os
 import sys
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
+sys.path.insert(0, os.path.join(ROOT, "publish"))
+import account  # noqa: E402
 
 
 def caption_for(cap, template):
@@ -21,10 +25,13 @@ def caption_for(cap, template):
 
 def main():
     repo = sys.argv[sys.argv.index("--repo") + 1] if "--repo" in sys.argv else "Harapanee/mycase-delivery"
-    tag = sys.argv[sys.argv.index("--tag") + 1] if "--tag" in sys.argv else "reels-v1"
+    acc = sys.argv[sys.argv.index("--account") + 1] if "--account" in sys.argv else account.DEFAULT
+    account.name({"IG_ACCOUNT": acc})  # 未知のアカウント名を弾く
+    tag = sys.argv[sys.argv.index("--tag") + 1] if "--tag" in sys.argv else account.release_tag(acc)
     base = f"https://github.com/{repo}/releases/download/{tag}"
-    manifest = json.load(open(os.path.join(ROOT, "release-assets", "manifest.json"), encoding="utf-8"))
-    cap = json.load(open(os.path.join(ROOT, "captions.json"), encoding="utf-8"))
+    assets = os.path.join(ROOT, "release-assets", acc) if acc else os.path.join(ROOT, "release-assets")
+    manifest = json.load(open(os.path.join(assets, "manifest.json"), encoding="utf-8"))
+    cap = json.load(open(account.path("captions.json", acc, ROOT), encoding="utf-8"))
     items = []
     for m in manifest:
         items.append({
@@ -35,10 +42,13 @@ def main():
             "caption": caption_for(cap, m["template"]),
             "audio_id": None,
             "audio_title": "動画に焼き込み済み(BGM+SFX)",
+            "account": account.label(acc),
             "source": f"mycase-{m['n']}-{m['template']}",
         })
     out = {"generated_at": datetime.datetime.now().astimezone().isoformat(timespec="seconds"), "items": items}
-    with open(os.path.join(ROOT, "schedule.json"), "w", encoding="utf-8") as f:
+    out_path = account.path("schedule.json", acc, ROOT)
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
     lens = [len(i["caption"]) for i in items]
     print(f"{len(items)} 件 / 本文 {min(lens)}〜{max(lens)} 文字(上限2200) / {items[0]['publish_at']} 〜 {items[-1]['publish_at']}")

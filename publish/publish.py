@@ -10,6 +10,7 @@ import os
 import sys
 from zoneinfo import ZoneInfo
 
+import account
 import ig_client
 import schedule_select
 import state as state_mod
@@ -26,7 +27,7 @@ def run(schedule, state_data, now, user_id, token, *, client=ig_client, force_ke
     if force_key:
         item = next((x for x in schedule["items"] if x["key"] == force_key), None)
         if item is None:
-            print(f"::error::{force_key} が schedule.json に無い")
+            print(f"::error::{force_key} が schedule に無い")
             return state_data, None
         print(f"[手動] {force_key} を時刻の窓を無視して公開する")
     else:
@@ -60,21 +61,39 @@ def run(schedule, state_data, now, user_id, token, *, client=ig_client, force_ke
     return state_data, key
 
 
+def load_schedule_or_skip(schedule_path, user_id):
+    """アカウントの Secrets か schedule が未整備なら None(呼び出し側は何もせず正常終了)。
+
+    en を追加した段階では動画もIDも揃っていない。それでも publish.yml を落とさないため。
+    """
+    if not user_id:
+        print(f"[スキップ] {account.label()} の IG_USER_ID が未設定")
+        return None
+    if not os.path.exists(schedule_path):
+        print(f"[スキップ] {schedule_path} が無い(投稿予定が未登録)")
+        return None
+    with open(schedule_path, encoding="utf-8") as f:
+        return json.load(f)
+
+
 def main():
     token = os.environ["IG_ACCESS_TOKEN"]
-    user_id = os.environ["IG_USER_ID"]
-    with open("schedule.json", encoding="utf-8") as f:
-        schedule = json.load(f)
+    user_id = os.environ.get("IG_USER_ID", "")
+    schedule = load_schedule_or_skip(account.path("schedule.json"), user_id)
+    if schedule is None:
+        return
+    state_path = account.path("state.json")
+    print(f"[アカウント] {account.label()} state={state_path}")
     now = datetime.datetime.now(JST)
     force_key = os.environ.get("PUBLISH_KEY") or None
     try:
-        updated, key = run(schedule, state_mod.load("state.json"),
+        updated, key = run(schedule, state_mod.load(state_path),
                            now, user_id, token, force_key=force_key)
     except ig_client.ContainerError as e:
         print(f"::error::公開に失敗: {e}")
         sys.exit(1)
     if key:
-        state_mod.save("state.json", updated)
+        state_mod.save(state_path, updated)
 
 
 if __name__ == "__main__":

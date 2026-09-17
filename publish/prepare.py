@@ -11,7 +11,9 @@ import os
 import sys
 from zoneinfo import ZoneInfo
 
+import account
 import ig_client
+import publish as publish_mod
 import schedule_select
 import state as state_mod
 
@@ -47,7 +49,12 @@ def run(schedule, state_data, now, user_id, token, *, client=ig_client):
 
 def main():
     token = os.environ["IG_ACCESS_TOKEN"]
-    user_id = os.environ["IG_USER_ID"]
+    user_id = os.environ.get("IG_USER_ID", "")
+    schedule = publish_mod.load_schedule_or_skip(account.path("schedule.json"), user_id)
+    if schedule is None:
+        return
+    state_path = account.path("state.json")
+    print(f"[アカウント] {account.label()} state={state_path}")
 
     days = ig_client.token_days_left(token)
     if days is not None:
@@ -56,12 +63,10 @@ def main():
             print(f"::warning::トークンの残りが {days} 日。Business Suite の "
                   f"bizbot から再生成し、Secrets を更新すること")
 
-    with open("schedule.json", encoding="utf-8") as f:
-        schedule = json.load(f)
     now = datetime.datetime.now(JST)
-    updated, failed = run(schedule, state_mod.load("state.json"),
+    updated, failed = run(schedule, state_mod.load(state_path),
                           now, user_id, token)
-    state_mod.save("state.json", updated)
+    state_mod.save(state_path, updated)
     if failed:
         print(f"::error::コンテナ作成に失敗: {', '.join(failed)}")
         sys.exit(1)

@@ -82,3 +82,34 @@ def test_run_公開に失敗したら例外を送出しstateを更新しない()
     c = FakeClient(publish_fails=True)
     with pytest.raises(ig_client.ContainerError):
         pub.run(SCHEDULE, PREPARED, NOW, "IG", "T", client=c)
+
+
+def test_main_IG_USER_IDが空なら何もせず正常終了する(tmp_path, monkeypatch):
+    """en を追加した直後は Secrets も schedule も無い。publish.yml を落とさないため。"""
+    monkeypatch.chdir(tmp_path)
+    assert pub.load_schedule_or_skip("schedule.json", "") is None
+
+
+def test_main_scheduleが無ければ何もせず正常終了する(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    assert pub.load_schedule_or_skip("accounts/en/schedule.json", "17841000") is None
+
+
+def test_main_enはaccounts配下のstateに書く(tmp_path, monkeypatch):
+    import json, account
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("IG_ACCOUNT", "en")
+    monkeypatch.setenv("IG_ACCESS_TOKEN", "T")
+    monkeypatch.setenv("IG_USER_ID", "17841000")
+    os.makedirs("accounts/en")
+    json.dump(SCHEDULE, open("accounts/en/schedule.json", "w"))
+    # run() の client= は定義時に束縛されるので、ig_client の関数そのものを差し替える
+    fake = FakeClient()
+    for fn in ("create_container", "wait_for_container", "publish_container"):
+        monkeypatch.setattr(ig_client, fn, getattr(fake, fn))
+    monkeypatch.setattr(pub.datetime, "datetime", type("D", (datetime.datetime,), {
+        "now": classmethod(lambda cls, tz=None: NOW)}))
+    pub.main()
+    st = json.load(open("accounts/en/state.json"))
+    assert st["day01_0600"]["status"] == "published"
+    assert not os.path.exists("state.json"), "日本語側の state.json に書いてはいけない"

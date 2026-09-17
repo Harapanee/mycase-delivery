@@ -32,8 +32,12 @@ def get(path, token, **params):
 def main():
     token = os.environ.get("IG_ACCESS_TOKEN", "")
     user_id = os.environ.get("IG_USER_ID", "")
-    if not token or not user_id:
-        sys.exit("IG_ACCESS_TOKEN / IG_USER_ID が設定されていない")
+    if not token:
+        sys.exit("IG_ACCESS_TOKEN が設定されていない")
+    if not user_id:
+        # en を追加した直後は Secrets が無い。日本語側の疎通は別ジョブで見ているので落とさない
+        print(f"::notice::{os.environ.get('IG_ACCOUNT') or 'ja'} の IG_USER_ID が未設定のため疎通確認をスキップ")
+        return
 
     # トークンの発行方式とホストの対応を最初に確認する。
     # EAA... = Facebook Login → graph.facebook.com / IGAA... = Instagram Login → graph.instagram.com

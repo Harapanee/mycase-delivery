@@ -36,6 +36,10 @@ on:
         description: '取りこぼしを手動で公開するときだけ指定(例 001_20260913_0600)。空なら通常どおり時刻で選ぶ'
         required: false
         default: ''
+      key_en:
+        description: '同上、英語 @mycase_en 用(accounts/en/schedule.json のキー)'
+        required: false
+        default: ''
 
 concurrency:
   group: ig-state
@@ -75,6 +79,41 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add state.json
             git commit -m "chore: 投稿結果を記録"
+            git pull --rebase origin ${{ github.event.repository.default_branch }}
+            git push
+          fi
+
+  # ★英語 @mycase_en(2026-09-17 追加)。日本語と同じ枠・同じ発火で、schedule/state は accounts/en/ に分離。
+  #   needs で日本語の後に直列に走らせる(同時に push すると片方が弾かれるため)。
+  #   Secrets IG_USER_ID_EN が空、または accounts/en/schedule.json が無い間はスキップして緑。
+  publish-en:
+    needs: publish
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: accounts/en/state.json を origin の最新にする
+        run: |
+          git fetch --depth=1 origin ${{ github.event.repository.default_branch }}
+          git checkout FETCH_HEAD -- accounts/en/state.json || echo "accounts/en/state.json はまだ無い(初回)"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: リールを公開する(@mycase_en)
+        env:
+          IG_ACCOUNT: en
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID_EN }}
+          PUBLISH_KEY: ${{ inputs.key_en }}
+        run: python publish/publish.py
+      - name: accounts/en/state.json を保存する
+        if: always()
+        run: |
+          if [[ -n "$(git status --porcelain accounts/en/state.json)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add accounts/en/state.json
+            git commit -m "chore(en): 投稿結果を記録"
             git pull --rebase origin ${{ github.event.repository.default_branch }}
             git push
           fi
