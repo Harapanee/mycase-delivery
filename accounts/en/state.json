@@ -71,6 +71,8 @@
  "012_20260921_0800": {
   "container_created_at": "2026-09-21T03:12:28.636590+09:00",
   "container_id": "18114706990871578",
-  "status": "prepared"
+  "media_id": "17991832620043567",
+  "published_at": "2026-09-21T07:40:54.418575+09:00",
+  "status": "published"
  }
 }
