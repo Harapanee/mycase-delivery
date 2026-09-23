@@ -88,7 +88,14 @@ python3 -m pytest tests -q
 python3 tools/append_batch.py --account ja --tag reels-v2 --from 2026-09-23T18:00 <動画>:<テンプレート>:<サムネ秒> ...
 gh release create reels-v2 release-assets/reels-v2/*.mp4 release-assets/reels-v2/*.jpg --title "reels v2"
 ```
+型比較のように 1 日 1 本・同じ時刻にそろえるときは `--slots 18`(定期実行の枠 6/12/18、en は 8/22/25 の中から)。
 動画のビットレートは 15Mbps 以下にしておく(Instagram の上限 25Mbps。HyperFrames の高画質書き出しは超えることがある)。
+
+型ごとの伸び方の比較(公開済みリールのインサイトを 1 本 1 行の CSV に):
+```bash
+python3 tools/reel_insights.py --account ja --out insights-ja.csv
+```
+トークンに `instagram_manage_insights` が要る(2026-09-23 時点の bizbot トークンには無く、API エラー #10 になる)。
 
 ## 本番投入の前に必ずやること
 1. Secrets を入れたら **疎通確認ワークフロー(healthcheck.yml)を手動実行**して `content_publishing_limit` が返るのを見る
