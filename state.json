@@ -290,6 +290,8 @@
  "043_20261002_1800": {
   "container_created_at": "2026-10-02T05:17:20.755677+09:00",
   "container_id": "17960542896210539",
-  "status": "prepared"
+  "media_id": "18103850258201438",
+  "published_at": "2026-10-02T17:57:08.185978+09:00",
+  "status": "published"
  }
 }
