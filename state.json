@@ -297,6 +297,8 @@
  "044_20261003_1800": {
   "container_created_at": "2026-10-03T04:52:36.040603+09:00",
   "container_id": "17960681586210539",
-  "status": "prepared"
+  "media_id": "18125289010809882",
+  "published_at": "2026-10-03T17:32:38.403421+09:00",
+  "status": "published"
  }
 }
