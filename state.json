@@ -311,6 +311,8 @@
  "046_20261005_1800": {
   "container_created_at": "2026-10-05T03:36:08.263118+09:00",
   "container_id": "17960978790210539",
-  "status": "prepared"
+  "media_id": "18101466608036345",
+  "published_at": "2026-10-05T17:57:44.841645+09:00",
+  "status": "published"
  }
 }
