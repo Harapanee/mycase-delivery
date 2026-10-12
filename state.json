@@ -347,6 +347,8 @@
  "052_20261012_1200": {
   "container_created_at": "2026-10-12T04:27:27.004263+09:00",
   "container_id": "17961976965210539",
-  "status": "prepared"
+  "media_id": "17922472302222265",
+  "published_at": "2026-10-12T11:56:44.278540+09:00",
+  "status": "published"
  }
 }
