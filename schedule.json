@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-12T14:12:33+09:00",
+ "generated_at": "2026-10-13T14:44:30+09:00",
  "items": [
   {
    "key": "001_20260913_0600",
@@ -560,6 +560,36 @@
    "audio_id": null,
    "audio_title": "動画に焼き込み済み(BGM+SFX)",
    "source": "mycase-short-hook11-C0403.mp4"
+  },
+  {
+   "key": "057_20261014_0600",
+   "publish_at": "2026-10-14T06:00:00+09:00",
+   "video_url": "https://github.com/Harapanee/mycase-delivery/releases/download/reels-v7/057_20261014_0600.mp4",
+   "cover_url": "https://github.com/Harapanee/mycase-delivery/releases/download/reels-v7/057_20261014_0600.jpg",
+   "caption": "好きな画像を、スマホケースの背面に。\n気分に合わせて着せ替えできるMyCase。\n\nアプリで画像を選んで、ケースに送るだけ。\n※動画は一部早送りしています。\n\n▶詳しくは @mycasestore_net のプロフィールリンクへ\n\n#MyCase #スマホケース #iPhoneケース #電子ペーパー #推し活",
+   "audio_id": null,
+   "audio_title": "動画に焼き込み済み(BGM+SFX)",
+   "source": "MyCase_hook12_C0409_v2.mp4"
+  },
+  {
+   "key": "058_20261014_1200",
+   "publish_at": "2026-10-14T12:00:00+09:00",
+   "video_url": "https://github.com/Harapanee/mycase-delivery/releases/download/reels-v7/058_20261014_1200.mp4",
+   "cover_url": "https://github.com/Harapanee/mycase-delivery/releases/download/reels-v7/058_20261014_1200.jpg",
+   "caption": "好きな画像を、スマホケースの背面に。\n気分に合わせて着せ替えできるMyCase。\n\nアプリで画像を選んで、ケースに送るだけ。\n※動画は一部早送りしています。\n\n▶詳しくは @mycasestore_net のプロフィールリンクへ\n\n#MyCase #スマホケース #iPhoneケース #電子ペーパー #推し活",
+   "audio_id": null,
+   "audio_title": "動画に焼き込み済み(BGM+SFX)",
+   "source": "MyCase_hook13_C0410_v2.mp4"
+  },
+  {
+   "key": "059_20261014_1800",
+   "publish_at": "2026-10-14T18:00:00+09:00",
+   "video_url": "https://github.com/Harapanee/mycase-delivery/releases/download/reels-v7/059_20261014_1800.mp4",
+   "cover_url": "https://github.com/Harapanee/mycase-delivery/releases/download/reels-v7/059_20261014_1800.jpg",
+   "caption": "好きな画像を、スマホケースの背面に。\n気分に合わせて着せ替えできるMyCase。\n\nアプリで画像を選んで、ケースに送るだけ。\n※動画は一部早送りしています。\n\n▶詳しくは @mycasestore_net のプロフィールリンクへ\n\n#MyCase #スマホケース #iPhoneケース #電子ペーパー #推し活",
+   "audio_id": null,
+   "audio_title": "動画に焼き込み済み(BGM+SFX)",
+   "source": "MyCase_hook14_C0411_v2.mp4"
   }
  ]
 }
